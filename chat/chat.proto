@@ -1,0 +1,16 @@
+syntax = "proto3";
+package chat;
+
+message ChatMessage {
+    string from = 1;
+    string message = 2;
+}
+message Connect {
+    string name = 1;
+}
+message Empty {}
+
+service ChatService {
+    rpc CreateStream(Connect) returns (stream ChatMessage);
+    rpc BroadcastMessage(ChatMessage) returns (Empty);
+}
