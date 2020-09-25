@@ -9,7 +9,7 @@ import (
     pb "chat_grpc/chat"
 )
 
-const port = ":14586"
+const port = ":9090"
 
 type user struct {
     stream pb.ChatService_CreateStreamServer
@@ -22,6 +22,7 @@ type server struct {
 }
 
 func (s* server) CreateStream(conn *pb.Connect, stream pb.ChatService_CreateStreamServer) error {
+    fmt.Println(conn.Name)
     u := &user {
         stream: stream,
         name: conn.Name,
