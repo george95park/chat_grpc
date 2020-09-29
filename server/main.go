@@ -7,6 +7,7 @@ import (
     "google.golang.org/grpc"
     "golang.org/x/net/context"
     pb "chat_grpc/chat"
+    //"runtime/debug"
 )
 
 const port = ":9090"
@@ -30,56 +31,21 @@ func (s* server) CreateStream(conn *pb.Connect, stream pb.ChatService_CreateStre
     }
     s.observers = append(s.observers, u)
     log.Printf("User: %v has connected", conn.Name)
+    //debug.PrintStack()
     return <-u.error
 }
 
 func (s* server) BroadcastMessage(ctx context.Context, msg *pb.ChatMessage) (*pb.Empty, error) {
+    log.Printf("Broadcasting from: %v -- Message: %v", msg.From, msg.Message)
+    //debug.PrintStack()
     for _,obs := range s.observers {
         err := obs.stream.Send(msg)
         if err != nil {
             return &pb.Empty{}, err
         }
-        log.Printf("Broadcasting from: %v -- Message: %v", msg.From, msg.Message)
     }
     return &pb.Empty{}, nil
 }
-
-// func (s *server) Chat(stream pb.ChatService_ChatServer) error {
-//     waitc := make(chan *pb.ChatMessage)
-//     go func() {
-//         for {
-//             req, err := stream.Recv()
-//             if err == io.EOF {
-//                 close(waitc)
-//                 break
-//             }
-//             if err != nil {
-//                 log.Fatalf("error receiving: ", err)
-//                 break
-//             }
-//             log.Printf("received request: %v", req)
-//             if s.observers == nil {
-//                 s.observers = make(map[pb.ChatService_ChatServer]bool)
-//             }
-//             s.observers[stream] = true
-//             waitc <- req
-//         }
-//     }()
-//     for m := range waitc {
-//         for obs,_ := range s.observers {
-//             err := obs.Send(&pb.ChatMessageFromServer{
-//                 Message: &pb.ChatMessage{
-//                     From: m.From,
-//                     Message: m.Message,
-//                 },
-//             })
-//             if err != nil {
-//                 return err
-//             }
-//         }
-//     }
-//     return nil
-// }
 
 func main() {
     fmt.Printf("Starting server on port%v...\n", port)

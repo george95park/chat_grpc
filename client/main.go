@@ -11,7 +11,7 @@ import (
     pb "chat_grpc/chat"
 )
 var username string
-const addr = "localhost:14586"
+const addr = "localhost:9090"
 
 func listenForMessages(stream pb.ChatService_CreateStreamClient, chat chan*pb.ChatMessage) {
     for {
